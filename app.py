@@ -17,7 +17,7 @@ app = Flask(__name__)
 CORS(app)
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf'}
-
+app.config['SECRET_KEY'] = 'secret!'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
@@ -358,4 +358,4 @@ Return only in this JSON format:
         cross_validation = self.cross_validate_documents(analyses)
         return self.calculate_final_score(analyses, cross_validation)
 
-app.run(debug=False, port=5173)
+app.run(debug=False)
