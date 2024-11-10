@@ -152,7 +152,8 @@
     <div class="container">
         <div class="card">
             <h1>Medical Document Verification</h1>
-            <form id="uploadForm" action="https://substantial-dalila-hanumansingh-6e1cbbca.koyeb.app/upload" method="post" enctype="multipart/form-data" onsubmit="handleSubmit(event)">
+            <!-- <form id="uploadForm" action="https://substantial-dalila-hanumansingh-6e1cbbca.koyeb.app/upload" method="post" enctype="multipart/form-data" onsubmit="handleSubmit(event)"> -->
+            <form id="uploadForm" action="http://127.0.0.1:5000/upload" method="post" enctype="multipart/form-data" onsubmit="handleSubmit(event)">
                 <div class="file-input-group">
                     <label for="medical_bill">Medical Bill</label>
                     <div class="file-input-wrapper">
@@ -193,13 +194,14 @@
             event.preventDefault();
             const formData = new FormData(event.target);
             try {
-                const response = await fetch('https://substantial-dalila-hanumansingh-6e1cbbca.koyeb.app/upload', {
+                // const response = await fetch('https://substantial-dalila-hanumansingh-6e1cbbca.koyeb.app/upload', {
+                const response = await fetch('http://127.0.0.1:5000/upload', {
                     method: 'POST',
                     body: formData
                 });
                 const data = await response.json();
                 const resultDiv = document.getElementById('result');
-                
+                console.log(data);
                 if (response.ok) {
                     resultDiv.innerHTML = `
                         <h1>Verification Results</h1>
@@ -229,7 +231,11 @@
                         </div>
                         <div class="result-item">
                             <span class="result-label">Policy Document Score</span>
-                            <span class="result-value">${data.result.individual_scores.policy_path}%</span>
+                            <span class="result-value">${data.result.individual_scores.policy}%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Cross Validation Score</span>
+                            <span class="result-value">${data.result.individual_scores.cross_validation}%</span>
                         </div>
                     `;
                 } else {
