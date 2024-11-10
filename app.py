@@ -358,4 +358,5 @@ Return only in this JSON format:
         cross_validation = self.cross_validate_documents(analyses)
         return self.calculate_final_score(analyses, cross_validation)
 
-app.run(debug=False)
+if __name__ == "__main__":
+    app.run(debug=False)
