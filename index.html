@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Document Verification</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --background: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        h1 {
+            color: var(--text);
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .file-input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .file-input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px dashed #e5e7eb;
+            border-radius: 0.5rem;
+            background: #f9fafb;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        input[type="file"]:hover {
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #result {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        #result.active {
+            display: block;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .result-value {
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Medical Document Verification</h1>
+            <form id="uploadForm" action="http://localhost:5000/upload" method="post" enctype="multipart/form-data" onsubmit="handleSubmit(event)">
+                <div class="file-input-group">
+                    <label for="medical_bill">Medical Bill</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="medical_bill" id="medical_bill">
+                    </div>
+                </div>
+                
+                <div class="file-input-group">
+                    <label for="doctor_report">Doctor Report</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="doctor_report" id="doctor_report">
+                    </div>
+                </div>
+                
+                <div class="file-input-group">
+                    <label for="test_report">Test Report</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="test_report" id="test_report">
+                    </div>
+                </div>
+                
+                <div class="file-input-group">
+                    <label for="policy_path">Policy Document</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="policy_path" id="policy_path">
+                    </div>
+                </div>
+                
+                <button type="submit">Verify Documents</button>
+            </form>
+        </div>
+
+        <div id="result" class="card"></div>
+    </div>
+    
+    <script>
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            try {
+                const response = await fetch('http://127.0.0.1:5173/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                const resultDiv = document.getElementById('result');
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h1>Verification Results</h1>
+                        <div class="result-item">
+                            <span class="result-label">Final Score</span>
+                            <span class="result-value">${data.result.final_score}%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Risk Level</span>
+                            <span class="result-value">${data.result.risk_level}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Recommendation</span>
+                            <span class="result-value">${data.result.recommendation}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Medical Bill Score</span>
+                            <span class="result-value">${data.result.individual_scores.medical_bill}%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Doctor Report Score</span>
+                            <span class="result-value">${data.result.individual_scores.doctor_report}%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Test Report Score</span>
+                            <span class="result-value">${data.result.individual_scores.test_report}%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Policy Document Score</span>
+                            <span class="result-value">${data.result.individual_scores.policy_path}%</span>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result-item" style="color: var(--error)">
+                            Error: ${data.error}
+                        </div>
+                    `;
+                }
+                resultDiv.classList.add('active');
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <div class="result-item" style="color: var(--error)">
+                        Error: Unable to connect to server
+                    </div>
+                `;
+                document.getElementById('result').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
